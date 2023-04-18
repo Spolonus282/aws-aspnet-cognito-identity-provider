@@ -34,11 +34,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private IAmazonCognitoIdentityProvider _cognitoClient;
         private CognitoUserPool _pool;
         private CognitoIdentityErrorDescriber _errorDescribers;
+        private bool _customAuthFlow;
 
         public CognitoUserStore(IAmazonCognitoIdentityProvider cognitoClient, CognitoUserPool pool, IdentityErrorDescriber errors)
         {
             _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
+            _customAuthFlow = false;
 
             // IdentityErrorDescriber provides predefined error strings such as PasswordMismatch() or InvalidUserName(String)
             // This is used when returning an instance of IdentityResult, which can be constructed with an array of errors to be surfaced to the UI.
@@ -66,7 +68,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 AuthFlowResponse context =
                     await user.StartWithSrpAuthAsync(new InitiateSrpAuthRequest()
                     {
-                        Password = password
+                        Password = password,
+                        IsCustomAuthFlow = _customAuthFlow
                     }).ConfigureAwait(false);
 
                 return context;
@@ -492,6 +495,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to verify the attribute for the Cognito User", e));
             }
         }
+
+        /// <summary>
+        /// Whether or not to use a custom authentication flow when verifying a user
+        /// </summary>
+        public bool CustomAuthFlow { get => _customAuthFlow;  set => _customAuthFlow = value; }
 
         /// <summary>
         /// Internal method to get a user attribute value, while checking if this attribute is readable

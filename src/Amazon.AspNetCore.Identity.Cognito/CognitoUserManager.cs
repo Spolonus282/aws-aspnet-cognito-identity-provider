@@ -61,6 +61,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         /// <summary>
+        /// Sets whether to run the authentication flow using custom authentication.
+        /// </summary>
+        public bool CustomAuthFlow { get => _userStore.CustomAuthFlow; set => _userStore.CustomAuthFlow = value; }
+
+        /// <summary>
         /// Gets the user, if any, associated with the normalized value of the specified email address.
         /// </summary>
         /// <param name="email">The email address to return the user for.</param>
